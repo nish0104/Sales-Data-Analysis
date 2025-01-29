@@ -1,0 +1,618 @@
+---
+title: "Vaghani_Nishtha_Project6_Codes"
+output: html_document
+date: "2024-10-26"
+---
+
+```{r librariesdata, message=FALSE, warning=FALSE}
+
+# Libraries used in this document
+library(rmarkdown)
+library(readxl)       # To read data sets
+library(readr)        # To read data sets
+library(tidyverse)
+library(dplyr)        # Part of tidyverse
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(magrittr)     # For the pipes %>% 
+library(FSA)          # For headtail()
+library(RColorBrewer) # For colors
+library(lattice)      # For better visualiztaion
+
+
+# Data sets used in this document
+# Load the Data sets 
+M6Data_Sales = read_excel("Datasets/M6_project_dataset(2023).xlsx")
+
+
+```
+
+<!--- Title--->
+<P><BR>
+<CENTER>
+<FONT SIZE = 5, COLOR="#000066">
+<B>Project number: 6 and Exploring Probability Distributions</B></FONT>  
+<FONT SIZE = 5, COLOR = "#4682B4"><B>Nishthaben Vaghani</B></FONT> <BR> 
+<B>Introduction to Analytics</B> <BR>
+<FONT SIZE = 4>
+Instructor: Dr.Dee Chiluiza, PhD  
+Northeastern University  
+Date: `r format(Sys.time(), "%d %B, %Y")`  
+</FONT>
+</CENTER> 
+<BR><BR>
+<P>
+<FONT SIZE = 3, COLOR = "#4169E1">
+<B>INTRODUCTION </B>
+</FONT>
+<P>
+In the dynamic world of business, data analysis plays a critical role in informing decisions that drive sales, enhance operations, and shape strategic direction. Sales data, in particular, is integral to understanding consumer behavior, product performance, and market trends. Businesses today operate in a global marketplace, where data-driven insights can provide a competitive edge by revealing opportunities for growth, optimizing supply chains, and improving customer satisfaction. Organizations leverage data analytics to not only monitor past performance but also forecast future trends, allowing them to stay ahead in an increasingly competitive environment. By employing robust statistical techniques, businesses can transform raw sales data into actionable insights that improve decision-making processes at every level(Jaggia, S., & Kelly, A. ,2020).
+<BR><BR>
+  <B>Data Set Description:</B><BR>The dataset used in this analysis appears to be sales-related, potentially encompassing variables such as product categories, sales figures, transaction dates, customer demographics, and possibly geographical sales distribution. The dataset, labeled "M6_project_dataset(2023).xlsx," likely provides valuable insights into the sales performance of various products over a specific period. This type of data is essential for understanding business trends, customer preferences, and overall market dynamics. Proper data cleaning and transformation processes will be applied before the actual analysis, ensuring that the dataset is ready for accurate and insightful evaluation.
+<BR><BR>
+  <B>Descriptive Statistics:</B><BR>Descriptive statistics gives the summary of the main characteristics of a dataset and help in understanding the basic features of the data, such as central tendency, variability, and distribution. Measures like mean, median, mode, standard deviation, and range provide insights into the data’s overall structure. For example, when applied to sales data, descriptive statistics can reveal which products have the highest average sales, identify seasonal trends, or highlight outliers that may warrant further investigation. In real-life business projects, these statistics allow stakeholders to grasp essential patterns and make informed decisions, such as optimizing product inventories or adjusting pricing strategies to match consumer demand(Anderson, D. R., Sweeney, D. J., & Williams, T. A., 2019).
+<BR><BR>
+  <B>Inferential Statistics:</B><BR>Inferential statistics allow analysts to make predictions or inferences about a population based on a sample of data. Techniques such as hypothesis testing, regression analysis, and confidence intervals enable businesses to draw conclusions about market behaviors or customer preferences. For instance, a business might use inferential statistics to determine whether a change in marketing strategy significantly impacts sales, or to forecast future sales based on historical data. These insights are vital for making data-driven decisions, minimizing risks, and maximizing returns on investment. In business applications, inferential statistics help companies go beyond what is immediately observable and make informed predictions about future outcomes(Anderson, D. R., Sweeney, D. J., & Williams, T. A., 2019).
+<BR><BR>
+  <B>R Script versus R Markdown:</B><BR>R Script and R Markdown are two widely used tools for performing and documenting data analysis. While both allow users to execute R code, they serve slightly different purposes. R Script is a simple text file that contains R code and is used primarily for executing code step by step. It is ideal for experimentation and running individual scripts. R Markdown, on the other hand, is more comprehensive. It allows users to embed R code within a formatted document that can include narrative text, equations, and plots, making it a powerful tool for reporting and sharing findings. The key advantage of R Markdown is its ability to produce dynamic reports that combine code, output, and commentary in a single file. However, for quick code execution and debugging, R Script may be more efficient. The choice between the two often depends on the project’s needs—whether the emphasis is on conducting the analysis or communicating the results to stakeholders(Kabacoff, R., 2015).
+<BR><BR>
+  <FONT SIZE = 2, COLOR = "#197E86">
+  <B>References </B>
+  </FONT><BR>
+  • Jaggia, S., & Kelly, A. (2020). Essentials of Business Statistics. McGraw-Hill Education.
+<BR>
+  • Anderson, D. R., Sweeney, D. J., & Williams, T. A. (2019). Statistics for Business and Economics. Cengage Learning.
+<BR>
+  • Kabacoff, R. (2015) R in Action: Data Analysis and graphics with R. Manning Publication.
+<BR>
+  <BR>
+  
+<!--- Tasks--->
+<P>
+<FONT SIZE = 3, COLOR = "#4169E1">
+<B>ANALYSIS SECTION - TASKS </B>
+</FONT>
+<P>
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 1: Exploratory Data Analysis of Sales Dataset.</B>
+<BR></FONT>
+<B>Description of task</B>: In this task, we aim to provide a brief descriptive analysis(by using mean(), median() and sd() functions) of the sales dataset using R. The analysis will focus on key sales metrics such as product prices, quantities sold, and shipping costs. We will present the data in a summary table and visualize important trends using two graphs with the help of ggplot(): a bar chart showing the distribution of order quantities by market, and a scatter plot comparing product prices and shipping costs. Basic descriptive statistics such as mean, median, and standard deviation will also be computed to give insights into the general behavior of the dataset.
+<BR>
+```{r task1}
+# Task 1
+# Code:
+# Convert necessary fields to appropriate data types
+M6Data_Sales$OrderDate = as.Date(M6Data_Sales$OrderDate, format="%Y-%m-%d")
+M6Data_Sales$Product_Price = as.numeric(M6Data_Sales$Product_Price)
+M6Data_Sales$Quantity = as.numeric(M6Data_Sales$Quantity)
+M6Data_Sales$Shipping_Cost_Each = as.numeric(M6Data_Sales$Shipping_Cost_Each)
+
+# 1. Descriptive statistics for numeric columns (Product Price, Quantity, Shipping Cost)
+summary_stats = M6Data_Sales %>% 
+  summarise(
+    avg_price = mean(Product_Price, na.rm=TRUE),
+    median_price = median(Product_Price, na.rm=TRUE),
+    sd_price = sd(Product_Price, na.rm=TRUE),
+    avg_quantity = mean(Quantity, na.rm=TRUE),
+    median_quantity = median(Quantity, na.rm=TRUE),
+    sd_quantity = sd(Quantity, na.rm=TRUE),
+    avg_shipping = mean(Shipping_Cost_Each, na.rm=TRUE),
+    median_shipping = median(Shipping_Cost_Each, na.rm=TRUE),
+    sd_shipping = sd(Shipping_Cost_Each, na.rm=TRUE)
+  )
+
+# Create a formatted table using kable and kableExtra
+summary_stats %>%
+  kable("html", col.names = c("Mean Product Price", "Median Product Price", "SD Product Price", 
+                              "Mean Quantity", "Median Quantity", "SD Quantity",
+                              "Mean Shipping Cost", "Median Shipping Cost", "SD Shipping Cost"),
+        caption = "Summary Statistics of Sales Data - Nishthaben Vaghani") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+# 2. Bar chart for order quantities by market
+bar_chart = ggplot(M6Data_Sales, aes(x=Quantity, y=Market, fill=Market)) +
+  geom_bar(stat="summary", fun="sum") +
+  geom_text(stat="summary", fun="sum", aes(label=after_stat(y)), vjust=-0.5, color="black", size=3.5) +  # Adds values on top of bars
+  labs(title="Total Order Quantities by Market - Nishthaben Vaghani", x="Total Order Quantity", y="Market") +
+  theme_minimal()
+
+# 3. Scatter plot for Product Price vs Shipping Cost
+scatter_plot = ggplot(M6Data_Sales, aes(x=Product_Price, y=Shipping_Cost_Each)) +
+  geom_point(color="brown", alpha=0.6) +
+  labs(title="Product Price vs Shipping Cost by Market - Nishthaben Vaghani", x="Product Price", y="Shipping Cost per Item") +
+  theme_minimal() +
+  facet_wrap(~ Market)
+
+# Display the plots
+print(bar_chart)
+print(scatter_plot)
+```
+<BR>
+<B>Observations</B>: <BR>
+• <B>Descriptive Statistics</B>:The descriptive statistics provide a useful summary of the key numerical fields in the dataset. From the results:
+  <UL>
+  <LI>The mean product price is 548.90, while the median product price is 501.35. The higher mean compared to the median indicates a positive skew, suggesting that there are some higher-priced products in the dataset pulling the mean up.</LI>
+  <LI>The SD of 293.96 indicates significant variability in product prices, which implies that prices are spread widely around the mean. This variation could be due to a diverse range of product offerings or varying product categories with different pricing strategies.</LI>  
+  <LI>The mean quantity is 158.52, while the median is 133. This difference, with the mean being higher than the median, also suggests a positive skew, indicating that some products have larger order quantities that are raising the average.</LI> 
+  <LI>The SD of 116.09 shows a considerable spread in quantities, which means there are significant differences in the number of units ordered for different products. This may be due to demand variations across products or different batch sizes for each product category.</LI> 
+  <LI>The mean shipping cost is 14.32, while the median is 8.58. The considerable difference between the mean and median suggests that a few shipments have much higher costs, skewing the average upward. This could result from a few items with high shipping requirements or long-distance shipping charges.</LI> 
+  <LI>With an SD of 13.98, shipping costs also exhibit considerable variation. This might indicate that some shipments incur significantly higher costs due to factors such as weight, distance, or shipping mode.</LI>   <LI>All three metrics—product price, quantity, and shipping cost—show a higher mean than median, indicating a skewed distribution, likely with a few high values influencing the means. This skewness suggests that the dataset includes a variety of high-value or high-quantity items that impact the averages.</LI> 
+  <LI>Higher variability in both quantity and shipping costs suggests that larger quantities may incur higher shipping expenses, potentially due to bulk shipments or special handling requirements.
+</LI> 
+  </UL>
+• <B>Bar Chart (Order Quantities by Market)</B>: The bar chart shows the distribution of total order quantities across different markets. This visualization helps us identify which markets are driving the most sales volume(Asia Pacific and Europe at more than 40000). Markets with higher order quantities could be key targets for future marketing or expansion efforts.Whereas Africa Market is at lowest at a bit less than 10000 quantity.Meanwhile LATAM(at 25000) is almost half than that of Europe and Asia Pacific.<BR>
+• <B>Scatter Plot (Product Price vs Shipping Cost)</B>: The scatter plot reveals the relationship between product price and shipping cost. It may show whether more expensive products have higher shipping costs or if shipping prices remain relatively stable regardless of product price. This can be useful for understanding the cost structure and optimizing shipping strategies.It is noticed that shipping cost per Item for Asia Pacific, Europe, LATAM and USCA is between 0 and 10 for product price ranging from 0 to 1000.<BR>
+• From this task I learnt how graphs and statistics provide a comprehensive overview of the dataset, highlighting trends in pricing, shipping, and sales performance across different markets.
+
+<BR>
+  
+  
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 2: Visualizing the Distribution of Shipping Costs.</B>
+</FONT>
+<BR>
+<B>Description of task</B>: In this task, we will analyze the distribution of the "Shipping Cost Each" variable by using two visualizations the first one is a horizontal box plot by using boxplot() and second is a histogram by using hist(). By applying the par(mfcol=c(2,1)) function, we will display both graphs in a single output window to enhance comparison. Additionally, we will overlay the mean and median on both graphs by using abline() function to provide the insight into the central tendency of the shipping cost distribution. The x-axis limits will be set to the same range for both graphs to allow for direct comparison. After plotting, we will describe the distribution based on the visualizations and statistical measures.
+<BR>
+```{r task2}
+# Task 2
+# Code:
+# Step 1:Setting up the plotting area to display both graphs vertically
+par(mfcol=c(2,1))
+
+# 1. Horizontal Box Plot for Shipping Cost
+boxplot(M6Data_Sales$Shipping_Cost_Each, horizontal=TRUE, 
+        main="Box Plot of Shipping Cost - Nishthaben Vaghani", 
+        xlab="Shipping Cost", col="lightblue", 
+        ylim=c(0, max(M6Data_Sales$Shipping_Cost_Each, na.rm=TRUE)))
+
+# Adding the mean and median lines
+abline(v=mean(M6Data_Sales$Shipping_Cost_Each, na.rm=TRUE), col="red", lwd=2, lty=2)  # Mean
+abline(v=median(M6Data_Sales$Shipping_Cost_Each, na.rm=TRUE), col="midnightblue", lwd=2, lty=2)  # Median
+
+# 2. Histogram for Shipping Cost
+hist(M6Data_Sales$Shipping_Cost_Each, 
+     main="Histogram of Shipping Cost - Nishthaben Vaghani", 
+     xlab="Shipping Cost", col="salmon", 
+     xlim=c(0, max(M6Data_Sales$Shipping_Cost_Each, na.rm=TRUE)), 
+     breaks=20)
+
+# Adding the mean and median lines
+abline(v=mean(M6Data_Sales$Shipping_Cost_Each, na.rm=TRUE), col="red", lwd=2, lty=2)  # Mean
+abline(v=median(M6Data_Sales$Shipping_Cost_Each, na.rm=TRUE), col="midnightblue", lwd=2, lty=2)  # Median
+
+# Resetting the plotting layout to default (optional)
+par(mfcol=c(1,1))
+
+```
+<BR>
+  <B>Observations</B>: <BR>
+  • <B>Box Plot</B>:
+  <UL>
+  <LI>The box plot shows the spread of the shipping cost, with the red dashed line representing the mean(around 15) and the midnight blue dashed line representing the median(around 9). The presence of any outliers is visible as points outside the whiskers.</LI>
+  <LI>The median is located close to the center of the box, indicating a fairly symmetric distribution. However, if there are noticeable outliers or the box is skewed, it suggests potential asymmetry or extreme values in the data.</LI>       
+  </UL>
+  • <B>Histogram</B>:
+  <UL>
+  <LI>The histogram reveals the frequency distribution of the shipping cost, with most of the values clustered in a specific range. The mean (red dashed line) at around 15 and median (midnight blue dashed line) at around 9 provide further insights into the central tendency of the data.</LI>
+  <LI>If the mean(15) is greater than the median(9), the distribution is likely positively skewed, suggesting a longer tail on the right-hand side of the distribution, indicating that a few orders have significantly higher shipping costs.</LI>       
+  </UL>
+  • <B>Comparison</B>:By setting the limits to the same magnitude in both the box plot and histogram, we ensure that both visualizations provide a consistent view of the data’s range and distribution, allowing for easier interpretation and comparison.<BR>
+  • From these visualizations, we can conclude whether the shipping costs are normally distributed, skewed, or if there are significant outliers influencing the dataset. The presence of outliers might indicate operational inefficiencies or special cases that could be investigated further.
+
+<BR>
+  
+  
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 3: Analysis of Shipping Costs Comparison Across Various Markets.</B>
+</FONT>
+<BR>
+<B>Description of task</B>: In this task, we will analyze and compare shipping costs across different markets by using a box plot by using ggplot() and geom_boxplot(). This visualization will allow us to observe the spread of shipping costs in each market, identify where the shipping costs tend to be higher, and where they are lower. We will assess which markets have the most variability in shipping costs and explore whether certain markets consistently have higher shipping charges.We will also add the mean value by using stat_summary() function.
+<BR>
+```{r task3}
+# Task 3
+# Code:
+# Create a box plot to perform analysis of shipping costs across markets and display mean
+ggplot(M6Data_Sales, aes(x = Market, y = Shipping_Cost_Each, fill = Market)) +
+  geom_boxplot(outlier.colour = NA) +  # Boxplot without displaying outliers
+  geom_point(stat = "summary", fun = mean, shape = 18, size = 3, color = "red") +  # Adding mean as red points
+  geom_text(stat = "summary", fun = mean, aes(label = paste("Mean:", round(after_stat(y), 2))), 
+            vjust = -0.5, color = "red") +  # Adding mean value as text
+  labs(title = "Shipping Costs by Market - Nishthaben Vaghani", 
+       x = "Market", 
+       y = "Shipping Cost Each") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +  # Use color palette for filling
+  theme(legend.title = element_blank(),  # Remove legend title
+        legend.position = "right")  # Position the legend on the right
+
+
+```
+<BR>
+  <B>Observations</B>: <BR>
+  • <B>Box Plot</B>:
+  <UL>
+  <LI>It is clear from the box plot that there is a difference in the shipping cost distributions across all markets. Each box represents the interquartile range (IQR), with the median indicated by the horizontal line within the box(which is highest for Africa at more than 40). Outliers, if present, are displayed as individual points beyond the whiskers.</LI>
+  <LI>Markets with a wider IQR or a large number of outliers(Europe Market) indicate higher variability in shipping costs. This could be due to factors such as geographical distance, shipping provider pricing, or customer demand variations.</LI>       
+  </UL>
+  • <B>High and Low Shipping Costs</B>:
+  <UL>
+  <LI>From the plot, we can identify which market consistently have higher shipping costs by observing the median and upper range of each market's box. The market with the highest median line is of Africa at around 42 as the shipping cost, this indicates higher average shipping costs, while the one with the lowest median line represents lower average costs which is of USCA at around 4 as the shipping cost.</LI>
+  <LI>In markets where shipping costs are high(Africa), this could point to longer shipping distances or higher freight charges. Conversely, markets with lower shipping costs(USCA) might be closer to distribution centers or have more efficient logistics.</LI>       
+  </UL>
+• <B>Insights from Market Averages</B>:In addition to the visual interpretation of the box plot, the printed mean shipping cost for each market helps quantify the average shipping expenses. This numerical data supports the visual findings and provides additional clarity on which market consistently faces the highest or lowest shipping costs.<BR>
+• Through this analysis, we can identify potential optimization opportunities. For example, understanding which markets face higher shipping costs can guide businesses to review logistics strategies, negotiate better shipping rates, or explore regional warehousing options to reduce costs.
+
+<BR>
+
+
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 4:  Analyzing Mean Shipping Cost per Market and Median Product Price per Market Using tapply().</B>
+</FONT>
+<BR>
+<B>Description of task</B>: In this task, we will compute the mean shipping cost for each market using the tapply() function and save the results in an object. Following this, we will create a bar plot to visually illustrate the average shipping costs across different markets. Additionally, we will compare this bar plot to the box plot generated in Task 3 to examine the differences in data representation. Furthermore, we will utilize the tapply() function to calculate a different summary statistic, the median, for the "Product_Price" variable, and present a graph that displays the median product price for each market.
+<BR>
+```{r task4}
+# Task 4
+# Code:
+# Step 1: Calculate mean shipping cost per market and present as a table
+mean_shipping_per_market = tapply(M6Data_Sales$Shipping_Cost_Each, M6Data_Sales$Market, mean, na.rm=TRUE)
+
+# Present the mean shipping cost per market as a table by creating a dataframe
+mean_shipping_df = data.frame(Market = names(mean_shipping_per_market), Mean_Shipping_Cost = mean_shipping_per_market)
+mean_shipping_df %>%
+  kable("html", caption = "Mean Shipping Cost per Market - Nishthaben Vaghani") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+# Step 2: Create a bar plot for the mean shipping cost per market
+barplot(mean_shipping_per_market, 
+        main="Mean Shipping Cost per Market - Nishthaben Vaghani", 
+        xlab="Market", 
+        ylab="Mean Shipping Cost", 
+        col=c("brown","tomato","lightcoral","coral","lightsalmon"), 
+        ylim=c(0, max(mean_shipping_per_market) * 1.2))
+
+# Adding values on top of the bars
+text(x = barplot(mean_shipping_per_market, plot = FALSE), 
+     y = mean_shipping_per_market, 
+     label = round(mean_shipping_per_market, 2), 
+     pos = 3, cex = 0.8, col = "black")
+
+# Add grid lines for better readability
+grid()
+
+# Step 3: Calculate median product price per market and present as a table
+median_price_per_market = tapply(M6Data_Sales$Product_Price, M6Data_Sales$Market, median, na.rm=TRUE)
+
+# Present the median product price per market as a table
+median_price_df = data.frame(Market = names(median_price_per_market), Median_Product_Price = median_price_per_market)
+median_price_df %>%
+  kable("html", caption = "Median Product Price per Market - Nishthaben Vaghani") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+# Step 4: Creating bar plot to visualize the median product price per market
+barplot(median_price_per_market, 
+        main="Median Product Price per Market - Nishthaben Vaghani", 
+        xlab="Market", 
+        ylab="Median Product Price", 
+        col=c("darkgreen","darkseagreen","palegreen","mediumaquamarine","lightseagreen"), 
+        ylim=c(0, max(median_price_per_market) * 1.2))
+
+# Add values on top of the bars
+text(x = barplot(median_price_per_market, plot = FALSE), 
+     y = median_price_per_market, 
+     label = round(median_price_per_market, 2), 
+     pos = 3, cex = 0.8, col = "black")
+
+# Add grid lines for better readability
+grid()
+```
+<BR>
+<B>Observations</B>: <BR>
+• <B>Bar Plot vs. Box Plot (Task 3)(Mean)</B>:
+            <UL>
+                <LI>The bar plot provides a clear and direct comparison of the average shipping costs across markets. It simplifies the comparison by focusing on the mean values, making it easy to spot which market has the highest(Africa at 32.815323) or lowest(USCA at 8.090235) average shipping cost.</LI>
+                <LI>The box plot from Task 3, on the other hand, provided a more detailed view, including the variability and spread (via the interquartile range) of shipping costs within each market. While the bar plot shows the central tendency, the box plot highlights the distribution and outliers, giving a fuller picture of shipping costs.</LI>
+                <LI>Together, these plots provide complementary insights: the bar plot simplifies the comparison, while the box plot offers a nuanced view of the distribution.</LI>       
+            </UL>
+• <B>Bar Plot for Median Product Price</B>:
+            <UL>
+                <LI>The bar plot reveals the median product price across different markets. Unlike the mean, the median is unaffected by extreme values, offering a more stable representation of the central product price for each market.</LI>
+                <LI>Markets with higher median product prices(Europe at 562.880, Asia Pacific at 558.995) may indicate a preference for premium products, while lower median prices(USCA at 197.435) suggest that customers in those regions tend to purchase lower-cost items.</LI>
+                <LI>With the highest median product price at 562.88, Europe stands out as the market where products tend to have a higher price range compared to other regions. This may indicate higher production costs, premium products, or a consumer base willing to spend more on quality products.</LI>
+                <LI>The median product price in Latin America is 529.90, slightly lower than Europe. This suggests that Latin American markets might also focus on higher-priced products, although it’s slightly less than Europe, which may reflect regional price sensitivities or a preference for mid-to-high-tier products.</LI>
+                <LI>Both Asia Pacific and Africa have a median product price of 477.695, indicating a similar pricing structure in these regions. These markets may favor a balanced price range, potentially reflecting regional economic factors or consumer purchasing power.</LI>
+                <LI>With the lowest median product price at 197.435, the USCA market seems to favor a more affordable product range. This might reflect a highly competitive market where lower prices are essential to appeal to price-sensitive consumers or to meet market demand for cost-effective options.</LI>
+            </UL>
+• <B>Comparison for Median Product Price to Mean Shipping Cost Analysis</B>:
+            <UL>
+                <LI>While the mean shipping cost analysis provided insight into logistics and shipping efficiencies across markets, the median product price analysis reveals trends in customer preferences and product pricing. Comparing the two graphs, markets with high shipping costs may not necessarily have high product prices, which could be an interesting finding for business strategy.</LI>
+                </UL>
+• The higher median and mean prices in Europe and Africa suggest these markets may be more favorable for premium products or could indicate higher market prices overall due to economic factors.<BR>
+• The low median and mean product prices in USCA indicate a focus on affordability, which could be driven by competitive market dynamics or consumer demand for budget-friendly products.<BR>
+• The similar values for the median and mean prices across markets like Asia Pacific and Europe indicate a relatively even distribution of product prices. In contrast, markets with a larger gap between mean and median, such as Africa, may have more significant price variability.<BR>
+• By combining these analyses, businesses can gain a comprehensive understanding of both their pricing strategy and logistical costs across different markets, leading to better-informed decisions.
+
+<BR>
+
+
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 5: Shipping Cost Analysis Across Different Shipping Modes.</B>
+</FONT>
+<BR>
+<B>Description of task</B>: In this task, we will analyze the shipping costs based on different shipping modes using a box plot with the help of ggplot() function. This visualization will help identify how shipping costs vary across modes such as "First Class," "Same Day," "Second Class," etc. By analyzing the distribution of shipping costs for each mode, we can observe which shipping mode tends to be more expensive, more consistent, or has a wider variation in cost. This will provide valuable insights for logistics and cost optimization strategies.We will also present the median values by using the stat_summary() function.
+<BR>
+```{r task5}
+# Task 5
+# Code:
+# Create a box plot to display Shipping Cost across different Shipping Modes
+ggplot(M6Data_Sales, aes(x=ShipMode, y=Shipping_Cost_Each, fill=ShipMode)) +
+  geom_boxplot() +
+  stat_summary(fun=median, geom="point", shape=18, size=3, color="red", fill="red") +  # Adding mean as red points
+  stat_summary(fun=median, geom="text", aes(label=paste("Median:", round(after_stat(y), 2))), vjust=-0.5, color="red") +  # Adding mean value as text
+  labs(title="Shipping Cost vs Shipping Mode - Nishthaben Vaghani", 
+       x="Shipping Mode", 
+       y="Shipping Cost Each") +
+  theme_minimal() +
+  scale_fill_brewer(palette="Pastel1")
+
+
+```
+<BR>
+<B>Observations</B>: <BR>
+• <B>Box Plot Insights</B>:
+            <UL>
+                <LI>The box plot shows the variation of shipping costs for each shipping mode, with each box representing the interquartile range (IQR) of the data, and the line inside the box shows the median shipping cost.</LI>
+                <LI>Shipping modes with wider boxes or longer whiskers have more variability in their shipping costs such as First Class and Same Day. On the other hand, more compact boxes indicate more consistent pricing such as Standard Class.</LI>
+                <LI>Shipping modes with outliers (shown as dots)such as First Class, Second Class and Standard Class indicate cases where the shipping costs significantly deviate from the norm. These could be orders with special circumstances, such as long-distance deliveries or rush shipments.</LI>       
+            </UL>
+• <B>Comparison Across Shipping Modes</B>:
+            <UL>
+                <LI>From the plot, we can identify the most expensive shipping mode by looking at the median and upper range of the box. If "Same Day" shipping has a significantly higher median(47.7) shipping cost compared to "Standard" or "First Class" this suggests that the quicker delivery times may come with a higher price tag.</LI>
+                <LI>On the other hand, if "Standard" shipping shows a lower median(4.34) and narrower range, it suggests that this mode is more cost-effective and consistent in pricing.</LI>
+            </UL>
+• <B>Logistical Implications</B>:
+            <UL>
+                <LI>Understanding the distribution of shipping costs across different shipping modes can help businesses optimize their logistics strategies. For example, if there is a wide variability in "Same Day" shipping costs, it may be beneficial to negotiate better rates with couriers or explore alternative shipping options to provide customers with reliable and cost-efficient delivery options.</LI>
+                </UL>
+• The median shipping cost for first class is 27.22. This suggests that customers opting for first-class shipping are likely paying a premium for faster delivery. The higher cost indicates that first-class shipping is positioned as a premium service, appealing to customers who prioritize speed over cost.<BR>
+• The same day shipping mode has a significantly higher median cost of 47.7. This reflects the urgency and convenience that same-day delivery offers. Customers willing to pay this higher cost may have critical delivery needs, highlighting the value placed on immediate gratification and speed in the shipping industry. This mode could be crucial for businesses that need to meet tight deadlines or for customers requiring urgent deliveries.<BR>
+• The median shipping cost for second class is much lower at 15.96. This suggests that second class shipping is a more economical option for customers who are not in a hurry to receive their goods. It caters to budget-conscious consumers or those who can wait longer for their shipments, indicating a clear market segment for more affordable shipping options.
+<BR>
+• The median shipping cost for standard class is the lowest at 4.34. This indicates that standard class shipping is the most cost-effective option available. It likely appeals to customers who prioritize cost savings over speed, making it a viable option for non-urgent deliveries.<BR>
+• First class and same day shipping cater to customers willing to pay more for speed, while second class and standard class options serve more price-sensitive customers. This segmentation allows the company to effectively target diverse customer needs and preferences.<BR>
+• The higher median costs for first-class and same-day shipping modes indicate strong market demand for fast delivery options. Companies could consider enhancing these services further to capture the growing consumer preference for speed, especially in e-commerce.<BR>
+• This analysis allows for a deeper understanding of how shipping costs fluctuate based on the mode of delivery, enabling businesses to make data-driven decisions on logistics and shipping strategies.
+
+<BR>
+
+
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 6: Adding a new column and calculating Total Sales.</B>
+</FONT>
+<BR>
+<B>Description of task</B>: In this task, we will calculate total sales for each order by multiplying the Product_Price by the Quantity. We will add this as a new column called Total_Sales to the dataset using the mutate() function from the dplyr library. The newly modified dataset will be saved under a new name, and we will use the glimpse() function to preview the first row of the dataset, including the new column.For better analysis we will create a summary table using the summarize() function by grouping the Markets using the group_by() function and will represent it in the form of a table using kable() and kable_styling() function.Then we will create a bar plot by using the ggplot() function.
+<BR>
+```{r task6}
+# Task 6
+# Code:
+# Create a new dataset with an additional column for Total Sales
+M6Data_new = M6Data_Sales %>%
+  mutate(Total_Sales = Product_Price * Quantity)
+
+# Glimpse the structure of the new dataset, showing only the first record to avoid long outputs
+glimpse(M6Data_new[1, ])
+
+# Step 3: Create a summary table for Total Sales by Market
+total_sales_summary = M6Data_new %>%
+  group_by(Market) %>%
+  summarise(Total_Sales = sum(Total_Sales, na.rm = TRUE))
+
+# Present the summary table using kable for a better presentation
+total_sales_summary %>%
+  kable("html", caption = "Total Sales by Market - Nishthaben Vaghani") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+# Step 4: Create a bar plot to compare total sales across different markets
+ggplot(total_sales_summary, aes(x = reorder(Market, -Total_Sales), y = Total_Sales, fill = Market)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Sales by Market - Nishthaben Vaghani", x = "Market", y = "Total Sales") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  geom_text(aes(label = scales::dollar(Total_Sales)), vjust = -0.5, size = 3, color = "black")
+
+
+
+```
+<BR>
+<B>Observations</B>: <BR>
+• <B>Total Sales Calculation</B>:The new Total_Sales column represents the total revenue generated by multiplying the product price (Product_Price) by the quantity of units sold (Quantity). This metric helps in assessing the overall revenue generated from each order, which can be useful for profitability analysis and understanding high-revenue products.
+<BR>
+• <B>Visual Insights from the Bar Plot</B>:The bar plot clearly illustrates which markets contribute the most to total sales which is Africa at 24,704,625 as Total Sales. Markets with larger bars represent higher revenue, making it easy to identify top performers at a glance.The inclusion of labeled sales values on the bars enhances readability and allows for quick comparison without needing to refer to the table.The Total Sales of Africa is at $5,127,296 which is the lowest among others.
+<BR>
+• <B>Market Variability</B>:The visual representation highlights variability between markets in terms of sales performance. Some markets show a substantial lead in total sales, while others may underperform, which may prompt further investigation into market-specific factors such as customer behavior, economic conditions, or promotional strategies.
+<BR>
+• The African market has the lowest total sales at 5,127,296. This could point to various factors, such as limited distribution channels, lower market awareness, or economic challenges. A thorough analysis of the market landscape in Africa may uncover barriers to entry and opportunities for growth, such as strategic partnerships or localized marketing initiatives.<BR>
+• The significant differences in sales across regions highlight the importance of market diversification. Relying heavily on Asia Pacific and Europe for sales could pose risks if those markets experience downturns. Exploring ways to increase sales in LatAm, USCA, and Africa can help mitigate these risks.<BR>
+• The USCA market shows total sales of 9,533,931, which is lower than Asia Pacific, Europe, and Latin America. This could indicate a saturated market or potential issues such as competition or product fit. Investigating customer needs and preferences in this region may reveal opportunities for tailored products or services.<BR>
+• Based on the observations, the company might consider focusing more marketing or operational efforts on high-performing markets to maximize revenue. Additionally, they may want to explore opportunities for improvement or growth in underperforming markets.
+
+<BR>
+
+
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 7: Market with the Highest Total Sales.</B>
+</FONT>
+<BR>
+<B>Description of task</B>: In this task, we will determine in which market the company had the highest total sales, using the group_by() and summarise() functions from the dplyr library. We will present the data as a table, formatted using the kable() function from the knitr library, and enhance the presentation with the kableExtra package. Additionally, we will visualize the data in a graph for better insights by usinhg ggplot() function.
+<BR>
+```{r task7}
+# Task 7
+# Code:
+# Create a new dataset with an additional column for Total Sales
+M6Data_new = M6Data_Sales %>%
+  mutate(Total_Sales = Product_Price * Quantity)
+
+# Group data by Market and calculate the total sales for each market
+market_sales = M6Data_new %>%
+  group_by(Market) %>%
+  summarise(Total_Sales = sum(Total_Sales, na.rm = TRUE)) %>%
+  arrange(desc(Total_Sales))  # Sort in descending order to find the highest sales
+
+# Display the results in a well-formatted table
+market_sales %>%
+  kable("html", caption = "Total Sales by Market - Nishthaben Vaghani") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+# Create a bar plot for visualization of total sales by market
+
+ggplot(market_sales, aes(x = reorder(Market, -Total_Sales), y = Total_Sales, fill = Market)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Sales by Market - Nishthaben Vaghani", x = "Market", y = "Total Sales (USD)") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  geom_text(aes(label = scales::comma(Total_Sales)), vjust = -0.5, size = 3)
+
+```
+<BR><BR>
+<B>Observations</B>: <BR>
+• <B>Highest Sales by Market</B>:The data shows the total sales for each market. The market with the highest total sales(Asia Pacific at 24,704,625) is easily identified by sorting the data in descending order. In this case, we expect the LATAM market have total sales of approximately $14,005,415.
+<BR>
+• <B>Table Presentation</B>:The table presents the markets in descending order of total sales, making it clear which market is performing the best in terms of revenue(Asia Pacific at $24,704,625). The table format is enhanced for clarity using the kable() function, ensuring easy readability.
+<BR>
+• <B>Graphical Representation</B>: The bar plot provides a visual representation of total sales across different markets. This helps in quickly identifying the leading market(Asia Pacific at $24,704,625), and the labels on each bar show the exact sales figures, offering both visual and numerical insights.
+• This analysis provides valuable information for decision-makers, helping them focus on high-performing markets and devise strategies to boost sales in underperforming ones.<BR>
+• The Asia Pacific market shows the highest total sales at 24,704,625. This suggests that this region is a significant contributor to the company's overall revenue, indicating a strong customer base and effective market penetration. It may be beneficial to continue investing in marketing and product availability in this region to maintain growth.<BR>
+• Europe closely follows Asia Pacific with total sales of 24,627,127. This indicates that the European market is also performing well, and strategies that have been successful in Asia Pacific might be applicable here as well. Cross-promotional efforts or shared marketing strategies could leverage this strength.<BR>
+• The Latin America (LATAM) market, with total sales of 14,005,415, presents a substantial opportunity for growth. While it lags behind Asia Pacific and Europe, its performance suggests potential for increased market share. Targeted marketing campaigns and customer engagement strategies could enhance brand presence and sales in this region.<BR>
+• The USCA market shows total sales of 9,533,931, which is lower than Asia Pacific, Europe, and Latin America. This could indicate a saturated market or potential issues such as competition or product fit. Investigating customer needs and preferences in this region may reveal opportunities for tailored products or services.<BR>
+• In this task, I learnt how to add new column to the dataset and perform calculation int it, how to group the data using the group_by() function and arranging the data by using the arrange() function.
+
+
+<BR>
+
+<FONT SIZE = 3, COLOR = "#197E86">
+<B>Task 8: Deep Critical Thinking Application – Analyzing Return Rates Across Markets.</B>
+</FONT>
+<BR>
+<B>Description of task:</B> In this task, we will use the mutate(), group_by(), and filter() functions to explore an important business question regarding the return rates across different markets.We aim to understand how returns impact the company's performance and identify which market experiences the highest return rates.This analysis will help identify areas where customer satisfaction might be lower and require attention. 
+<BR>
+  <BR>
+  <B>Business Question:<BR>Which market has the highest return rate, and how does the total sales compare in markets with high return rates?<BR><BR>Explanation of the Variables</B>: <BR>
+  • Market: Refers to the geographic regions where the company operates.<BR>
+  • Returns: Indicates the number of products that were returned, potentially due to customer dissatisfaction.<BR>
+  • Total Sales: A metric that shows the total revenue from sales, helping to analyze whether a higher return rate correlates with lower total sales.
+<BR>
+  
+  <B>Approach</B>: <BR>
+  • First, we will create a new column called Return_Rate using mutate(), which will calculate the return rate as the ratio of returned products to total quantity sold.<BR>
+  • Then, we will group the data by Market using group_by() and summarize the data using summarise() to find the average return rate for each market.<BR>
+  • Finally, we will use the filter() function to isolate the markets with high return rates and compare them with total sales in those markets.
+<BR>
+  
+  <B>Application of Codes</B>: <BR>
+  • mutate(): We use this function to create a new column, Return_Rate, which is calculated as Returns/Quantity.<BR>
+  • group_by(): This will allow us to group the data by Market to analyze return rates by region.<BR>
+  • filter(): This will help us identify markets where the return rate exceeds a certain threshold, indicating high return rates.
+<BR>
+```{r task8}
+# Task 8
+# Code:
+# Step 1: Create a new column for Return Rate
+M6Data_Returns = M6Data_new %>%
+  mutate(Return_Rate = (Returns/Quantity))
+
+# Step 2: Group data by Market and calculate average return rate and total sales
+market_returns = M6Data_Returns %>%
+  group_by(Market) %>%
+  summarise(
+    avg_return_rate = mean(Return_Rate, na.rm = TRUE),
+    total_sales = sum(Total_Sales, na.rm = TRUE)
+  )
+
+# Step 3: Filter markets with a high return rate (e.g., return rate > 0.1)
+high_return_markets = market_returns %>%
+  filter(avg_return_rate > 0.1)
+
+# Display the results in a well-formatted table
+high_return_markets %>%
+  kable("html", caption = "Markets with High Return Rates - Nishthaben Vaghani") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+# Create a bar plot comparing return rates across markets
+ggplot(market_returns, aes(x = reorder(Market, -avg_return_rate), y = avg_return_rate, fill = Market)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Return Rates by Market - Nishthaben Vaghani", x = "Market", y = "Average Return Rate") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  geom_text(aes(label = scales::percent(avg_return_rate)), vjust = -0.5, size = 3)
+
+```
+<BR><BR><BR>
+  <B>Observations</B>: <BR>
+  • Market Return Rates: The markets with the highest return rates(Asia Pacific at 30.0774%) have been identified, helping the company focus on areas where customer dissatisfaction may be higher. These markets may require interventions such as improved product quality, better customer service, or more accurate marketing.<BR>
+  • Total Sales vs. Returns: While some markets may generate high total sales, a high return rate could diminish overall profitability. This highlights the need to balance sales growth with efforts to reduce returns.<BR>
+  • Strategic Interventions: High return rates may be due to factors such as faulty products, unmet expectations, or logistical issues. Markets with higher return rates may need closer scrutiny to understand the root causes and reduce future returns.<BR>
+  • This analysis allows the company to better understand the financial and operational impact of product returns and take targeted actions in specific markets to improve customer satisfaction and profitability.<BR>
+  • With the highest return rate of 30.0774%, the Asia Pacific market may have specific challenges that require immediate attention. This could include issues related to product quality, customer expectations, or logistical inefficiencies. An in-depth analysis of customer feedback in this region could uncover critical insights.<BR>
+  • The Latam market (30.0586%) and Europe (30.0444%) also show high return rates, indicating that these markets may experience similar challenges as Asia Pacific. Targeted interventions in these regions could help improve customer satisfaction and reduce return rates.<BR>
+  • The USCA market (30.0423%) has a return rate that is almost on par with Europe and Latam. This consistency across different regions suggests that factors affecting returns could be systemic across markets rather than unique to specific geographical areas.<BR>
+  • In this task, I learnt to apply mutate(), group_by() and filter() function together to perform the analysis.
+
+<BR>
+  
+<P>
+<FONT SIZE = 3, COLOR = "#4169E1">
+<B>CONCLUSION</B>
+</FONT>
+  
+<P>
+In this project, I conducted a comprehensive data analysis that provided key insights into various metrics, such as total sales across different markets, return rates, and shipping costs. The findings demonstrated that some markets are performing exceptionally well in terms of sales, while others could benefit from strategic changes to reduce return rates and optimize shipping costs. These insights are valuable for guiding future business strategies, as they highlight areas where operational improvements could significantly impact profitability.
+
+The results emphasize the importance of detailed data analysis to inform strategic business decisions. By using statistical and data visualization tools, I was able to transform raw data into actionable insights. This process reinforced my understanding of data analytics, highlighting the role of data in diagnosing areas of strength and opportunities for improvement within a business.
+
+Throughout this project, I developed several skills, including advanced data wrangling and visualization techniques in R, and refined my ability to use functions such as ggplot(),barplot(),tapply(),hist(),mutate(), group_by(), and summarise(). These skills are foundational for a career in data analytics and are essential for analyzing large datasets and extracting insights that can drive decision-making.<BR><BR>
+<B>Recommendations</B><BR>
+Based on the analysis, I recommend the following actions to the company:<BR>
+  
+  • <B>Optimize Shipping Costs</B>: Analyze the markets with higher shipping costs to identify opportunities for cost reduction, such as negotiating with shipping providers or optimizing packaging.<BR>
+  • <B>Address High Return Rates</B>: Focus on markets with higher return rates by evaluating customer feedback and product quality in these areas. This can help reduce costs associated with returns and improve customer satisfaction.<BR>
+  • <B>Invest in High-Performing Markets</B>: Prioritize resources and marketing efforts in high-performing markets to increase total sales, as these markets demonstrate strong demand and higher revenue potential.<BR>
+  
+<B>Project Strategy</B><BR>
+To complete this report, I approached the project with a structured strategy. I began by thoroughly examining the dataset to understand its structure and variables. Then, I implemented code sections step-by-step, using functions like mutate() to create new variables, group_by() to organize data, and summarise() to calculate key metrics. I alternated between coding and adding insights to ensure clarity and coherence in my report. This strategy helped me stay organized and allowed for a smooth flow from data analysis to result interpretation.
+
+<B>Acknowledgments</B><BR>
+I would like to extend my heartfelt thanks to my professor, Dr. Diana Chiluiza, PhD (she/her), for her invaluable guidance throughout the course. I am also grateful to my peers for their support and for sharing insights that deepened my understanding of data analytics. Additionally, I appreciate my family and friends for their encouragement and unwavering support during my studies.
+<BR>
+  <BR>
+  
+<P>
+<FONT SIZE = 3, COLOR = "#4169E1">
+<B>BIBLIOGRAPHY</B>
+  </FONT>
+<P><B>Instruction Material</B>:
+  <UL>
+  <LI> ALY6000_M6Final_2023Instructions.html</LI>
+  </UL>
+  </P>
+  
+<P><B>Academic References</B>:
+  <UL>
+  <LI>Bluman, A. G. (2017). Elementary Statistics: A Step by Step Approach. McGraw-Hill Education.</LI>
+  <LI>Grolemund, G., & Wickham, H. (2017). R for Data Science: Import, Tidy, Transform, Visualize, and Model Data. O'Reilly Media.</LI>
+  <LI>Jaggia, S., & Kelly, A. (2020). Essentials of Business Statistics. McGraw-Hill Education.</LI>
+  <LI>Anderson, D. R., Sweeney, D. J., & Williams, T. A. (2019). Statistics for Business and Economics. Cengage Learning.</LI>
+  <LI>Kabacoff, R. (2015) R in Action: Data Analysis and graphics with R. Manning Publication.</LI>
+  <LI>Prof Dee Chiluiza RPubs <a href = "https://rpubs.com/Dee_Chiluiza/home">https://rpubs.com/Dee_Chiluiza/home</a></a>
+                </LI>       
+  </UL>
+</P>
+<BR>
+<P>
+<FONT SIZE = 3, COLOR = "#4169E1">
+<B>Appendix</B>
+</FONT>
+<P>
+An HTML (*.html)file has been attached with this rmd file. The name of the file is <B>Vaghani_Nishtha_Project6_Report.html.</B>
+
